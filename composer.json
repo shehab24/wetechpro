@@ -1,0 +1,11 @@
+{
+    "name": "yourname/wetechpro",
+    "description": "This is a test plugin for testing",
+    "type": "wordpress-plugin",
+    "autoload": {
+        "psr-4": {
+            "WeTechPro\\": "/"
+        }
+    },
+    "require": {}
+}
