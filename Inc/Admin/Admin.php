@@ -21,6 +21,8 @@ class Admin {
         add_action( 'admin_head', array( $this, 'add_admin_menu_css' ) );
         add_action('wp_ajax_create_category_request', [$this , 'myplugin_handle_create_category_request']);
         add_action('wp_ajax_nopriv_create_category_request', [$this , 'myplugin_handle_create_category_request']);
+        add_action('wp_ajax_get_all_product_category', [$this , 'myplugin_handle_get_all_product_category']);
+        add_action('wp_ajax_nopriv_get_all_product_category', [$this , 'myplugin_handle_get_all_product_category']);
     }
 
     public function enqueue_styles() {
@@ -126,16 +128,105 @@ class Admin {
 		</style>';
 	}	
 
-    public function myplugin_handle_create_category_request(){
+    public function myplugin_handle_create_category_request() {
         check_ajax_referer('wp_ajax_admin', 'nonce');
+    
+        $category_name = isset($_POST['categoryName']) ? sanitize_text_field($_POST['categoryName']) : "";
+        $categoryDesc = isset($_POST['categoryDesc']) ? sanitize_text_field($_POST['categoryDesc']) : "";
+    
+        // Handle file upload
+        $attachment_id = '';
+        if (isset($_FILES['categoryImage']) && !empty($_FILES['categoryImage']['name'])) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+            require_once(ABSPATH . 'wp-admin/includes/media.php');
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+    
+            $file = $_FILES['categoryImage'];
+            $upload_overrides = array('test_form' => false);
+    
+            $movefile = wp_handle_upload($file, $upload_overrides);
+            if ($movefile && !isset($movefile['error'])) {
+                // The file is uploaded successfully, now insert it into the media library
+                $attachment = array(
+                    'post_mime_type' => $movefile['type'],
+                    'post_title'     => sanitize_file_name($movefile['file']),
+                    'post_content'   => '',
+                    'post_status'    => 'inherit'
+                );
+    
+                $attachment_id = wp_insert_attachment($attachment, $movefile['file']);
+                if (!is_wp_error($attachment_id)) {
+                    require_once(ABSPATH . 'wp-admin/includes/image.php');
+                    $attachment_data = wp_generate_attachment_metadata($attachment_id, $movefile['file']);
+                    wp_update_attachment_metadata($attachment_id, $attachment_data);
+                }
+            }
+        }
+    
+        // Insert the product category
+        $result = wp_insert_term($category_name, 'product_cat', array(
+            'description' => $categoryDesc,
+        ));
+    
+        if (!is_wp_error($result)) {
+            $term_id = $result['term_id'];
 
-        $category_name = isset($_POST['categoryName']) ?  sanitize_text_field($_POST['categoryName']) : " ";
-        $result = wp_insert_term($category_name, 'product_cat');
-   
-        if ($result) {
-            wp_send_json_success(array('status' => true, 'category_name' => $category_name));
-        }else{
+            add_term_meta($term_id, 'category_term_meta', "wetechpro");
+    
+            // Add the uploaded image to the category
+            if ($attachment_id) {
+                update_term_meta($term_id, 'thumbnail_id', $attachment_id);
+            }
+
+           
+            wp_send_json_success(array('status' => true));
+        } else {
             wp_send_json_success(array('status' => false));
         }
+
+        
     }
+
+    public function myplugin_handle_get_all_product_category(){
+        check_ajax_referer('wp_ajax_admin', 'nonce');
+        $args = array(
+            'taxonomy'     => 'product_cat',
+            'orderby'      => 'name',
+            'show_count'   => 0,
+            'pad_counts'   => 0,
+            'hierarchical' => 1,
+            'title_li'     => '',
+            'hide_empty'   => 0,
+            'meta_query'   => array(
+                array(
+                    'key'       => 'category_term_meta',
+                    'compare'   => 'wetechpro',
+                ),
+            ),
+        );
+        
+        $product_categories = get_terms( $args );
+        
+        $category_data = array();
+        
+        foreach( $product_categories as $cat ) {
+            $cat_id = $cat->term_id;
+            $cat_name = $cat->name;
+            $cat_link = get_term_link( $cat_id, 'product_cat' );
+            $cat_image_id = get_term_meta( $cat_id, 'thumbnail_id', true );
+            $cat_image_src = wp_get_attachment_url( $cat_image_id );
+            
+            // Add category data to array
+            $category_data[] = array(
+                'id' => $cat_id,
+                'name' => $cat_name,
+                'link' => $cat_link,
+                'image_src' => $cat_image_src,
+            );
+        }
+
+        wp_send_json_success(array('status' => true, 'product_categories' => $category_data));
+
+    }
+    
 }

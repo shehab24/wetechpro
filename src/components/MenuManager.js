@@ -1,18 +1,45 @@
 import React , {useState, useEffect}  from 'react'
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react'
-import Popup from './Popup'
+import Popup from './category/Popup'
+import ProductList from './product/ProductList';
+import $ from 'jquery';
+import {ajax_url , nonce} from "../utils/helper";
+import { Bars, Rings  } from 'react-loader-spinner'
 
 const MenuManager = () => {
 
-
-
     const [openPopup, setOpenPopup] = useState(false)
+    const [state, setState] = useState(1)
+    const [productCategories, setProductCategories] = useState([]);
+    const [loading, setLoading] = useState(true)
 
+    useEffect(() => {
+        $.ajax({
+            url: ajax_url, 
+            type: 'get', 
+            data: {
+                action : "get_all_product_category",
+                nonce 
+            },
+            success(result) {
+                
+                setProductCategories(result.data.product_categories)
+                setLoading(false)
+            },
+            error(xhr, status, error) {
+              console.log(error)
+            }
+          });
+    }, [state])
+
+   console.log(loading)
 
 
   return (
     <>
    
+ 
+
         <div className="lg:flex lg:items-center lg:justify-between w-11/12 p-8 m-8 bg-white">
             <div className="min-w-0 flex-1">
                 <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
@@ -49,10 +76,31 @@ const MenuManager = () => {
                     Add Now
                 </button>
                 </span>
-                <Popup openPopup={openPopup} setOpenPopup={setOpenPopup} />
+                <Popup openPopup={openPopup} setOpenPopup={setOpenPopup}  setState={setState} state={state} />
               
             </div>
             </div>
+
+           { loading ? (
+                <div className='w-full text-center flex item-center justify-center'>         
+                        <Rings
+                            visible={true}
+                            height="100"
+                            width="100"
+                            color="rgb(79 70 229)"
+                            ariaLabel="rings-loading"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                            />
+                </div>
+            ) : (
+             <ProductList productCategories={productCategories}/>
+                )
+             }
+            
+
+         
+            
 
     </>
   )
