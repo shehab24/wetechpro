@@ -1,7 +1,7 @@
 /* Admin styles for WeTechPro */
 #adminmenu .toplevel_page_wetechpro .wp-menu-image img {
-    width: 27px !important;
-    height: 27px !important;
+    width: 20px !important;
+    height: 20px !important;
     text-align: center !important;
-    transform: translateX(3px) translateY(-3px) !important;
+    transform: translateX(0px) translateY(-3px) !important;
 }

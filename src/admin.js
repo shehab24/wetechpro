@@ -8,6 +8,7 @@ import BackendDashboard from './BackendDashboard';
 import { ToastContainer } from 'react-toastify';
 import "./index.css";
 import 'react-toastify/dist/ReactToastify.css';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
 
 document.addEventListener('DOMContentLoaded', () => {
 	const container = document.getElementById('mcp-admin-app');

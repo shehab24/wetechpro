@@ -4,6 +4,8 @@ namespace WeTechPro;
 
 class Main {
     public static function init() {
+
+        
         $plugin_name = PLUGIN_NAME;
         $version = PLUGIN_VERSION;
         $plugin_text_domain = PLUGIN_TEXT_DOMAIN;
@@ -18,4 +20,6 @@ class Main {
             new Inc\Frontend\Frontend($plugin_name, $version, $plugin_text_domain);
         }
     }
+
+  
 }

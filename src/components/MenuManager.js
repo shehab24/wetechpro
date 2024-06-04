@@ -30,9 +30,11 @@ const MenuManager = () => {
               console.log(error)
             }
           });
+
+       
     }, [state])
 
-   console.log(loading)
+
 
 
   return (

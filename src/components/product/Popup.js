@@ -7,61 +7,70 @@ import { Bars, Audio  } from 'react-loader-spinner'
 import ImageUpload from './ImageUpload';
 
 export default function Popup({openPopup,setOpenPopup  }) {
-  const [categoryName, setCategoryName] = useState('');
-  const [categoryDesc, setCategoryDesc] = useState('');
-  const [categoryImage, setcategoryImage] = useState(null);
+  const [productName, setProductName] = useState('');
+  const [productDesc, setProductDesc] = useState('');
+  const [regularPrice, setRegularPrice] = useState('');
+  const [sellingPrice, setSellingPrice] = useState('');
+  const [productSku, setProductSku] = useState('');
+  const [productImage, setProductImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
 
   
   const handleImageSelect = (file)=>{
-    setcategoryImage(file);
+    setProductImage(file);
 
   }
 
 
 
-  // const submitCategory = ()=>{
-  //   if(categoryName == "" || categoryDesc == ""){
-  //       toast.error('Category Field shouldn,t  be empty', {
-  //         autoClose: 2000,
-  //     });
-  //   }else{
-  //     setLoading(true);
-  //     const formData = new FormData();
-  //     formData.append('action', 'create_category_request');
-  //     formData.append('nonce', nonce);
-  //     formData.append('categoryName', categoryName);
-  //     formData.append('categoryDesc', categoryDesc);
-  //     if (categoryImage) {
-  //       formData.append('categoryImage', categoryImage);
-  //     }
-  //     $.ajax({
-  //       url: ajax_url, 
-  //       type: 'post', 
-  //       data: formData,
-  //       contentType: false,
-  //       processData: false,
-  //       success(result) {
-  //        if(result.data.status){
-  //         setLoading(false);
-  //           toast.success('Category added Successfully', {
-  //             autoClose: 2000,
-  //         });
-  //         setState(!state)
-  //         setCategoryName("");
-  //         setCategoryDesc("");
-  //         setPreview(null);
-  //        }
-  //       },
-  //       error(xhr, status, error) {
-  //         console.log(error)
-  //       }
-  //     });
+  const submitProduct = ()=>{
+    if(productName == "" || productDesc == "" || regularPrice == "" || productSku == "" || sellingPrice == ""){
+        toast.error('Product Field shouldn,t  be empty', {
+          autoClose: 2000,
+      });
+    }else{
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('action', 'add_product_request');
+      formData.append('nonce', nonce);
+      formData.append('productName', productName);
+      formData.append('productDesc', productDesc);
+      formData.append('regularPrice', regularPrice);
+      formData.append('sellingPrice', sellingPrice);
+      formData.append('productSku', productSku);
+      if (productImage) {
+        formData.append('productImage', productImage);
+      }
+      $.ajax({
+        url: ajax_url, 
+        type: 'post', 
+        data: formData,
+        contentType: false,
+        processData: false,
+        success(result) {
+         if(result.data.status){
+          setLoading(false);
+            toast.success('Product added Successfully', {
+              autoClose: 2000,
+          });
+          // setState(!state)
+          setProductName("");
+          setProductDesc("");
+          setRegularPrice("");
+          setSellingPrice("");
+          setProductSku("");
+          setPreview(null);
+         }
+        },
+        error(xhr, status, error) {
+          console.log(error)
+        }
+      });
   
-  //     }
+      }
 
-  //   }
+    }
    
   
 
@@ -94,15 +103,15 @@ export default function Popup({openPopup,setOpenPopup  }) {
                      
                    
                         <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                            Category Name
+                            Product Name
                         </label>
                         <div className="mt-2">
                         <input
                         type="text"
                         className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 text-gray-700 shadow-sm !important"
-                        value={categoryName}
-                        onChange={(e) => setCategoryName(e.target.value)}
-                        placeholder="Example Category Name"
+                        value={productName}
+                        onChange={(e) => setProductName(e.target.value)}
+                        placeholder="Example Product Name"
                       />
                         </div>
                         
@@ -112,19 +121,68 @@ export default function Popup({openPopup,setOpenPopup  }) {
                      
                    
                         <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                            Description
+                            Product Description
                         </label>
                         <div className="mt-2">
                         <textarea
                           className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                          value={categoryDesc}
-                          onChange={(e) => setCategoryDesc(e.target.value)}
-                          placeholder="Example Category Description"
+                          value={productDesc}
+                          onChange={(e) => setProductDesc(e.target.value)}
+                          placeholder="Example Product Description"
                         />
                  
                         </div>
+
+                  <div className='flex justify-between gap-3 mt-4'>
+                      <div>
+                          <label htmlFor="regularPrice" className="block text-sm font-medium leading-6 text-gray-900">
+                                Regular Price
+                            </label>
+                            <div className="mt-2">
+                            <input
+                            type="text"
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 text-gray-700 shadow-sm !important"
+                            value={regularPrice}
+                            onChange={(e) => setRegularPrice(e.target.value)}
+                            placeholder="Regular Price"
+                            id="regularPrice"
+                          />
+                            </div>
+                      </div>
+                      <div>
+                          <label htmlFor="sellingPrice" className="block text-sm font-medium leading-6 text-gray-900">
+                                Selling Price
+                            </label>
+                            <div className="mt-2">
+                            <input
+                            type="text"
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 text-gray-700 shadow-sm !important"
+                            value={sellingPrice}
+                            onChange={(e) => setSellingPrice(e.target.value)}
+                            placeholder="Selling Price"
+                            id="sellingPrice"
+                          />
+                            </div>
+                      </div>
+                      <div>
+                          <label htmlFor="productsku" className="block text-sm font-medium leading-6 text-gray-900">
+                                SKU
+                            </label>
+                            <div className="mt-2">
+                            <input
+                            type="text"
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 text-gray-700 shadow-sm !important"
+                            value={productSku}
+                            onChange={(e) => setProductSku(e.target.value)}
+                            placeholder="SKU"
+                            id="productsku"
+                          />
+                            </div>
+                      </div>
+                  </div>
                         
                 </div>
+              
                 <div className="bg-white px-4 pb-4 sm:p-6 sm:pb-4">
                      <ImageUpload onImageSelect={handleImageSelect} preview={preview} setPreview={setPreview} />
                
@@ -134,7 +192,7 @@ export default function Popup({openPopup,setOpenPopup  }) {
                   <button
                     type="button"
                     className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto "
-                    onClick={() => console.log("shehab")}
+                    onClick={() => submitProduct()}
                   >
                     {loading ?  <>Save Now <div className="spinnerwp"></div> </> : 'Save Now' }
                   

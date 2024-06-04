@@ -15,7 +15,7 @@ class Frontend {
 
         add_action('wp_enqueue_scripts', [$this, 'enqueue_styles']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
-        add_action('wp_head', [$this, 'wp_callback_for_head']);
+     
     }
 
     public function enqueue_styles() {
@@ -26,7 +26,5 @@ class Frontend {
         wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wetechpro-frontend.js', ['jquery'], $this->version, false);
     }
 
-    public function wp_callback_for_head() {
-        echo "This is a callback for the head section.";
-    }
+    
 }

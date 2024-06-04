@@ -1,15 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect } from 'react';
 import Popup from './Popup';
-
+import ProductTable from './ProductTable';
+import {ajax_url , nonce} from "../../utils/helper";
+import $ from 'jquery';
 const ProductList = ({ productCategories }) => {
   const [openPopup, setOpenPopup] = useState(false);
+  const [products, setProducts] = useState([]);
 
+
+ 
+  useEffect(() => {
+    $.ajax({
+        url: ajax_url, 
+        type: 'get', 
+        data: {
+            action : "get_all_products_with_category",
+            nonce 
+        },
+        success(result) {
+            
+            setProducts(result.data.product_data)
+           
+        },
+        error(xhr, status, error) {
+          console.log(error)
+        }
+      });
+
+   
+}, [])
 
 
 
   return (
     <div>
       {productCategories && productCategories.map((item , index)=>{
+
+                   const filteredProducts = products.filter(product => product.category_ids.includes(item.id));
+
+                   console.log(filteredProducts);
                     return (
     
                         
@@ -89,9 +118,16 @@ const ProductList = ({ productCategories }) => {
                             
                                 
                                 </div>
-                            </div>          
+
+                            </div>
+                            
+                            <div className='mt-4'>
+                            <ProductTable products={filteredProducts} />     
+                            </div>    
                         </div>
-                          
+                       
+                           
+                        
                         </>
                     )
              })}

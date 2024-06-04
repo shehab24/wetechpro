@@ -9,7 +9,7 @@ import {
   useQuery
 } from './utils/helper';
 
-console.log(all_menu_list)
+
 
 const AdminMenu = () => {
   const location = useQuery();

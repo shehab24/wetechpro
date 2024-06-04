@@ -23,11 +23,19 @@ class Admin {
         add_action('wp_ajax_nopriv_create_category_request', [$this , 'myplugin_handle_create_category_request']);
         add_action('wp_ajax_get_all_product_category', [$this , 'myplugin_handle_get_all_product_category']);
         add_action('wp_ajax_nopriv_get_all_product_category', [$this , 'myplugin_handle_get_all_product_category']);
+        add_action('wp_ajax_get_all_products_with_category', [$this , 'myplugin_handle_get_all_products_with_category']);
+        add_action('wp_ajax_nopriv_get_all_products_with_category', [$this , 'myplugin_handle_get_all_products_with_category']);
     }
 
-    public function enqueue_styles() {
+    public function enqueue_styles($hook) {
         wp_enqueue_style("wetechpro-admin-css", PLUGIN_URL . 'assets/css/admin.php.css', [], $this->version, 'all');
-        wp_enqueue_style("wetechpro-admin-build-css", PLUGIN_URL . 'build/admin.css', [], $this->version, 'all');
+        $allowed_pages = array(
+            'wetechpro', 
+            'wetechpro-menu-manager',
+        );
+        if (isset($_GET['page']) && in_array($_GET['page'], $allowed_pages)) {
+            wp_enqueue_style("wetechpro-admin-build-css", PLUGIN_URL . 'build/admin.css', [], '1.0', 'all');
+        }
     }
 
     public function enqueue_scripts() {
@@ -120,10 +128,10 @@ class Admin {
     function add_admin_menu_css() {
 		echo '<style>
         #adminmenu .toplevel_page_wetechpro .wp-menu-image img {
-            width: 27px !important;
-            height: 27px !important;
+            width: 20px !important;
+            height: 20px !important;
             text-align: center !important;
-            transform: translateX(3px) translateY(-3px) !important;
+            transform: translateX(0px) translateY(-3px) !important;
         }
 		</style>';
 	}	
@@ -226,6 +234,50 @@ class Admin {
         }
 
         wp_send_json_success(array('status' => true, 'product_categories' => $category_data));
+
+    }
+    
+    public function myplugin_handle_get_all_products_with_category(){
+        check_ajax_referer('wp_ajax_admin', 'nonce');
+
+        // Get all products
+        $product_args = array(
+            'post_type'      => 'product',
+            'posts_per_page' => -1,
+        );
+        
+        $products = get_posts($product_args);
+        
+        $product_data = array();
+        
+        foreach ($products as $product) {
+            $product_id = $product->ID;
+            $product_name = get_the_title($product_id);
+            $product_link = get_permalink($product_id);
+            $product_image_id = get_post_thumbnail_id($product_id);
+            $product_image_src = wp_get_attachment_url($product_image_id);
+        
+            // Get product categories
+            $product_cats = wp_get_post_terms($product_id, 'product_cat');
+            $product_cat_ids = array();
+        
+            foreach ($product_cats as $product_cat) {
+                $product_cat_ids[] = $product_cat->term_id;
+            }
+        
+            // Add product data to array
+            $product_data[] = array(
+                'product_id'   => $product_id,
+                'name'         => $product_name,
+                'link'         => $product_link,
+                'image_src'    => $product_image_src,
+                'category_ids' => $product_cat_ids,
+            );
+        }
+
+        
+
+        wp_send_json_success(array('status' => true, 'product_data' => $product_data));
 
     }
     
